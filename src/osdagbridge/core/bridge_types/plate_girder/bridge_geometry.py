@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 import warnings
+import math
 
 @dataclass(frozen=True)
 class Point:
@@ -183,13 +184,30 @@ class LoadPlacementManager:
             p4=Point(0.0, self.bridge.span),
         )
 
+    
     def overlay_load(self, edge_clearance: float) -> PatchLoadGeometry:
-        return PatchLoadGeometry(
-            p1=Point(edge_clearance, 0.0),
-            p2=Point(self.bridge.width - edge_clearance, 0.0),
-            p3=Point(self.bridge.width - edge_clearance, self.bridge.span),
-            p4=Point(edge_clearance, self.bridge.span),
+        if (
+            isinstance(edge_clearance, bool)
+            or not isinstance(edge_clearance, (int, float))
+            or not math.isfinite(edge_clearance)
+        ):
+           raise ValueError("edge_clearance must be a finite number")
+
+        if edge_clearance < 0:
+            raise ValueError("edge_clearance cannot be negative")
+
+        if edge_clearance * 2 >= self.bridge.width:
+            raise ValueError(
+            "edge_clearance must be less than half the bridge width"
         )
+
+        return PatchLoadGeometry(
+        p1=Point(edge_clearance, 0.0),
+        p2=Point(self.bridge.width - edge_clearance, 0.0),
+        p3=Point(self.bridge.width - edge_clearance, self.bridge.span),
+        p4=Point(edge_clearance, self.bridge.span),
+    )
+
 
     def footpath_load(self, side: str) -> PatchLoadGeometry:
         comp = self.layout.get_component(f"footpath_{side}")

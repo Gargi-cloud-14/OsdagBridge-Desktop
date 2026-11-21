@@ -1,0 +1,53 @@
+{
+    "framework": "BridgeProof",
+    "executed_at": "2026-11-21T11:33:54.878105+00:00",
+    "environment": {
+        "python_version": "3.12.5",
+        "platform": "Windows-11-10.0.26200-SP0"
+    },
+    "summary": {
+        "suites": 3,
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "errors": 0
+    },
+    "suite_reports": [
+        {
+            "suite_id": "BP-DECK-001",
+            "suite_name": "Deck Load Geometry Verification",
+            "json_report": "C:\\Users\\HP\\Desktop\\OsdagBridge-Desktop-Git\\reports\\deck_load_report.json",
+            "csv_report": "C:\\Users\\HP\\Desktop\\OsdagBridge-Desktop-Git\\reports\\deck_load_report.csv",
+            "summary": {
+                "total": 1,
+                "passed": 1,
+                "failed": 0,
+                "errors": 0
+            }
+        },
+        {
+            "suite_id": "BP-GEOMETRY-001",
+            "suite_name": "Bridge Cross Section Width Verification",
+            "json_report": "C:\\Users\\HP\\Desktop\\OsdagBridge-Desktop-Git\\reports\\geometry_width_report.json",
+            "csv_report": "C:\\Users\\HP\\Desktop\\OsdagBridge-Desktop-Git\\reports\\geometry_width_report.csv",
+            "summary": {
+                "total": 3,
+                "passed": 3,
+                "failed": 0,
+                "errors": 0
+            }
+        },
+        {
+            "suite_id": "BP-OVERLAY-001",
+            "suite_name": "Overlay Load Geometry Verification",
+            "json_report": "C:\\Users\\HP\\Desktop\\OsdagBridge-Desktop-Git\\reports\\overlay_load_report.json",
+            "csv_report": "C:\\Users\\HP\\Desktop\\OsdagBridge-Desktop-Git\\reports\\overlay_load_report.csv",
+            "summary": {
+                "total": 1,
+                "passed": 1,
+                "failed": 0,
+                "errors": 0
+            }
+        }
+    ]
+}
