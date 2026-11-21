@@ -33,11 +33,13 @@ class SectionComponent:
         return 0.5 * (self.x_start + self.x_end)
     
 
-@classmethod
-def from_layout(cls, layout: CrossSectionLayout, span: float):
+def from_layout(layout: CrossSectionLayout, span: float) -> LoadPlacementManager:
+    """
+    Create a load placement manager from an existing cross-section layout.
+    """
     bridge = BridgeGeometry(span=span, width=layout.total_width)
     layout.validate_against_bridge(bridge.width)
-    return cls(bridge, layout)
+    return LoadPlacementManager(bridge, layout)
 
 
 class BridgeGeometry:
@@ -257,6 +259,12 @@ class CrossSectionLayout:
         median_width: float = 0.0,
         no_of_footpaths: int = 0,   # 0, 1, or 2
     ):
+        if (
+            isinstance(no_of_footpaths, bool)
+            or not isinstance(no_of_footpaths, int)
+            or no_of_footpaths not in (0, 1, 2)
+        ):
+            raise ValueError("no_of_footpaths must be 0, 1, or 2")
         self.carriageway_width = carriageway_width
         self.crash_barrier_width = crash_barrier_width
         self.railing_width = railing_width
@@ -386,9 +394,7 @@ def create_default_load_placement(
     Create default bridge load placement from UI inputs.
     """
 
-    # -----------------------------
-    # Calculate bridge width
-    # -----------------------------
+    # Calculate bridge width from the supplied dimensions.
     bridge_width = calculate_bridge_width(
         carriageway_width=carriageway_width,
         crash_barrier_width=crash_barrier_width,
@@ -398,63 +404,20 @@ def create_default_load_placement(
         median_width=median_width,
     )
 
-    # -----------------------------
-    # Bridge geometry
-    # -----------------------------
+    # Build the cross-section layout.
+    layout = CrossSectionLayout(
+        carriageway_width=carriageway_width,
+        crash_barrier_width=crash_barrier_width,
+        railing_width=railing_width,
+        footpath_width=footpath_width,
+        median_width=median_width,
+        no_of_footpaths=no_of_footpaths,
+    )
+
+    # Ensure the generated layout matches the calculated width.
+    layout.validate_against_bridge(bridge_width)
+
+    # Create bridge geometry and its load placement manager.
     bridge = BridgeGeometry(span=span, width=bridge_width)
 
-    manager = LoadPlacementManager(bridge)
-
-    # -----------------------------
-    # Components
-    # -----------------------------
-    deck = DeckLoad(bridge)
-    overlay = OverlayLoad(bridge, edge_clearance=0.30)     #is edge clearance needed?
-
-    # Crash barriers (both sides of carriageway)
-    left_crash_barrier = CrashBarrier(
-        bridge,
-        offset_from_edge=crash_barrier_width / 2.0,
-        side="left",
-    )
-
-    right_crash_barrier = CrashBarrier(
-        bridge,
-        offset_from_edge=crash_barrier_width / 2.0,
-        side="right",
-    )
-    
-    medain = MedianLoad(
-        bridge,
-        offset_from_edge=median_width / 2.0,
-        side="left"
-    )
-
-    # Footpath & railing (example: left side only)
-    if no_of_footpaths >= 1:
-        footpath = FootpathLoad(
-            bridge,
-            start_offset=crash_barrier_width,
-            width=footpath_width,
-        )
-
-        railing = RailingLoad(
-            bridge,
-            offset_from_edge=crash_barrier_width + footpath_width + railing_width / 2.0,
-            side="left",
-        )
-
-        manager.add_component(footpath)
-        manager.add_component(railing)
-
-    # -----------------------------
-    # Register common components
-    # -----------------------------
-    manager.add_component(deck)
-    manager.add_component(overlay)
-    manager.add_component(medain)
-    manager.add_component(left_crash_barrier)
-    manager.add_component(right_crash_barrier)
-
-    return manager
-
+    return LoadPlacementManager(bridge, layout)
