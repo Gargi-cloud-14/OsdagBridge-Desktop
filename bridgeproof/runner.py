@@ -28,13 +28,34 @@ def overlay_load_geometry(edge_clearance, **inputs):
     manager = create_default_load_placement(**inputs)
     return asdict(manager.overlay_load(edge_clearance))
 
+def footpath_load_geometry(side, **inputs):
+    manager = create_default_load_placement(**inputs)
+    return asdict(manager.footpath_load(side))
+
+
+def crash_barrier_load_geometry(side, **inputs):
+    manager = create_default_load_placement(**inputs)
+    return asdict(manager.crash_barrier_load(side))
+
+
+def railing_load_geometry(side, **inputs):
+    manager = create_default_load_placement(**inputs)
+    return asdict(manager.railing_load(side))
+
+
+def median_load_geometry(**inputs):
+    manager = create_default_load_placement(**inputs)
+    return asdict(manager.median_line_load())
 
 OPERATIONS = {
     "calculate_bridge_width": calculate_bridge_width,
     "deck_load_geometry": deck_load_geometry,
     "overlay_load_geometry": overlay_load_geometry,
+    "footpath_load_geometry": footpath_load_geometry,
+    "crash_barrier_load_geometry": crash_barrier_load_geometry,
+    "railing_load_geometry": railing_load_geometry,
+    "median_load_geometry": median_load_geometry,
 }
-
 
 # =========================================================
 # EXPECTED VALUE VALIDATION

@@ -1,6 +1,7 @@
 import pytest
 
 from osdagbridge.core.bridge_types.plate_girder.bridge_geometry import (
+    BridgeGeometry,
     CrossSectionLayout,
     calculate_bridge_width,
 )
@@ -106,3 +107,96 @@ def test_cross_section_layout_rejects_mismatched_bridge_width():
 
     with pytest.raises(ValueError):
         layout.validate_against_bridge(13.0)
+
+@pytest.mark.parametrize(
+    "value",
+    [0, -1, float("nan"), float("inf"), True],
+)
+def test_bridge_geometry_rejects_invalid_span(value):
+    with pytest.raises(ValueError):
+        BridgeGeometry(span=value, width=10.0)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [0, -1, float("nan"), float("inf"), True],
+)
+def test_bridge_geometry_rejects_invalid_width(value):
+    with pytest.raises(ValueError):
+        BridgeGeometry(span=30.0, width=value)
+
+
+@pytest.mark.parametrize(
+    ("dimension", "value"),
+    [
+        ("carriageway_width", 0),
+        ("carriageway_width", -1),
+        ("carriageway_width", float("nan")),
+        ("carriageway_width", float("inf")),
+        ("carriageway_width", True),
+        ("crash_barrier_width", -1),
+        ("crash_barrier_width", float("nan")),
+        ("crash_barrier_width", float("inf")),
+        ("crash_barrier_width", True),
+        ("railing_width", -1),
+        ("railing_width", float("nan")),
+        ("railing_width", float("inf")),
+        ("railing_width", True),
+        ("footpath_width", -1),
+        ("footpath_width", float("nan")),
+        ("footpath_width", float("inf")),
+        ("footpath_width", True),
+        ("median_width", -1),
+        ("median_width", float("nan")),
+        ("median_width", float("inf")),
+        ("median_width", True),
+    ],
+)
+def test_cross_section_layout_rejects_invalid_dimensions(
+    dimension, value
+):
+    dimensions = {
+        "carriageway_width": 7.5,
+        "crash_barrier_width": 0.45,
+        "railing_width": 0.30,
+        "footpath_width": 1.50,
+        "median_width": 1.20,
+        "no_of_footpaths": 2,
+    }
+
+    dimensions[dimension] = value
+
+    with pytest.raises(ValueError):
+        CrossSectionLayout(**dimensions)
+
+
+@pytest.mark.parametrize(
+    ("dimension", "value"),
+    [
+        ("carriageway_width", -1),
+        ("crash_barrier_width", -1),
+        ("median_width", -1),
+        ("footpath_width", -1),
+        ("railing_width", -1),
+        ("carriageway_width", float("nan")),
+        ("crash_barrier_width", float("inf")),
+        ("median_width", True),
+    ],
+)
+def test_calculate_bridge_width_rejects_invalid_dimensions(
+    dimension, value
+):
+    dimensions = {
+        "carriageway_width": 7.5,
+        "crash_barrier_width": 0.45,
+        "median_width": 1.20,
+        "no_of_footpaths": 2,
+        "footpath_width": 1.50,
+        "railing_width": 0.30,
+    }
+
+    dimensions[dimension] = value
+
+    with pytest.raises(ValueError):
+        calculate_bridge_width(**dimensions)
+

@@ -132,3 +132,39 @@ def test_overlay_load_rejects_non_finite_or_boolean_clearance(clearance):
 
     with pytest.raises(ValueError):
         manager.overlay_load(clearance)
+
+
+@pytest.mark.parametrize("invalid_side", ["middle", "centre", "LEFT", "", None])
+def test_railing_load_rejects_invalid_side(
+    one_footpath_manager, invalid_side
+):
+    from osdagbridge.core.bridge_types.plate_girder.bridge_geometry import (
+        RailingLoad,
+    )
+
+    load = RailingLoad(
+        one_footpath_manager.bridge,
+        offset_from_edge=0.15,
+        side=invalid_side,
+    )
+
+    with pytest.raises(ValueError, match="side must be 'left' or 'right'"):
+        load.to_global()
+
+
+@pytest.mark.parametrize("invalid_side", ["middle", "centre", "RIGHT", "", None])
+def test_median_load_rejects_invalid_side(
+    one_footpath_manager, invalid_side
+):
+    from osdagbridge.core.bridge_types.plate_girder.bridge_geometry import (
+        MedianLoad,
+    )
+
+    load = MedianLoad(
+        one_footpath_manager.bridge,
+        offset_from_edge=6.6,
+        side=invalid_side,
+    )
+
+    with pytest.raises(ValueError, match="side must be 'left' or 'right'"):
+        load.to_global()
